@@ -1,4 +1,3 @@
-
 # API RESTful para Gerenciamento de Usuários e Produtos 🧑‍💻🛒
 
 Bem-vindo à **API RESTful para Gerenciamento de Usuários e Produtos**! Este projeto permite que você gerencie usuários e produtos de uma maneira simples e eficiente com autenticação via JWT (JSON Web Token). 🚀
@@ -8,7 +7,7 @@ Bem-vindo à **API RESTful para Gerenciamento de Usuários e Produtos**! Este pr
 ## Funcionalidades ✨
 
 - **CRUD de Usuários**: Criar, ler, atualizar e excluir usuários. 👤
-- **CRUD de Produtos**: Gerenciar produtos com nome e preço. 🛍️
+- **CRUD de Produtos**: Gerenciar produtos com nome e preço. 🛘️
 - **Autenticação com JWT**: Segurança com autenticação baseada em token. 🔐
 - **Validação de Dados**: Garante que os dados fornecidos sejam válidos e seguros. ✅
 
@@ -72,7 +71,7 @@ A API estará disponível em `http://localhost:3000`.
 
 ### 1. **Registrar Usuário (POST)** 👥
 
-- **URL**: `/api/users`
+- **URL**: `/users`
 - **Método**: `POST`
 - **Body (JSON)**:
 
@@ -96,7 +95,7 @@ A API estará disponível em `http://localhost:3000`.
 
 ### 2. **Login (POST)** 🔑
 
-- **URL**: `/api/login`
+- **URL**: `/login`
 - **Método**: `POST`
 - **Body (JSON)**:
 
@@ -119,9 +118,9 @@ A API estará disponível em `http://localhost:3000`.
 
 ### 3. **Criar Produto (POST)** 🛒
 
-- **URL**: `/api/products`
+- **URL**: `/products`
 - **Método**: `POST`
-- **Cabeçalhos**: 
+- **Cabeçalhos**:
   - `Authorization: Bearer seu_token_jwt_aqui`
 
 - **Body (JSON)**:
@@ -143,11 +142,11 @@ A API estará disponível em `http://localhost:3000`.
 
 ---
 
-### 4. **Listar Produtos (GET)** 📜
+### 4. **Listar Produtos (GET)** 📋
 
-- **URL**: `/api/products`
+- **URL**: `/products`
 - **Método**: `GET`
-- **Cabeçalhos**: 
+- **Cabeçalhos**:
   - `Authorization: Bearer seu_token_jwt_aqui`
 
 - **Resposta**:
@@ -166,9 +165,9 @@ A API estará disponível em `http://localhost:3000`.
 
 ### 5. **Atualizar Produto (PUT)** ✏️
 
-- **URL**: `/api/products/:id`
+- **URL**: `/products/:id`
 - **Método**: `PUT`
-- **Cabeçalhos**: 
+- **Cabeçalhos**:
   - `Authorization: Bearer seu_token_jwt_aqui`
 
 - **Body (JSON)**:
@@ -192,9 +191,9 @@ A API estará disponível em `http://localhost:3000`.
 
 ### 6. **Deletar Produto (DELETE)** ❌
 
-- **URL**: `/api/products/:id`
+- **URL**: `/products/:id`
 - **Método**: `DELETE`
-- **Cabeçalhos**: 
+- **Cabeçalhos**:
   - `Authorization: Bearer seu_token_jwt_aqui`
 
 - **Resposta**:
@@ -212,22 +211,22 @@ A API estará disponível em `http://localhost:3000`.
 Siga os passos abaixo para testar a API usando o Postman:
 
 1. **Registrar um Usuário**:
-   - Envie uma solicitação `POST` para `/api/users` com o corpo do usuário.
+   - Envie uma solicitação `POST` para `/users` com o corpo do usuário.
    
 2. **Login**:
-   - Envie uma solicitação `POST` para `/api/login` com as credenciais do usuário e receba o token JWT.
+   - Envie uma solicitação `POST` para `/login` com as credenciais do usuário e receba o token JWT.
 
 3. **Criar Produto**:
-   - Envie uma solicitação `POST` para `/api/products` com o corpo do produto, incluindo o token JWT no cabeçalho `Authorization`.
+   - Envie uma solicitação `POST` para `/products` com o corpo do produto, incluindo o token JWT no cabeçalho `Authorization`.
 
 4. **Listar Produtos**:
-   - Envie uma solicitação `GET` para `/api/products` com o token JWT no cabeçalho.
+   - Envie uma solicitação `GET` para `/products` com o token JWT no cabeçalho.
 
 5. **Atualizar Produto**:
-   - Envie uma solicitação `PUT` para `/api/products/:id` com o corpo da atualização e o token JWT no cabeçalho.
+   - Envie uma solicitação `PUT` para `/products/:id` com o corpo da atualização e o token JWT no cabeçalho.
 
 6. **Deletar Produto**:
-   - Envie uma solicitação `DELETE` para `/api/products/:id` com o token JWT no cabeçalho.
+   - Envie uma solicitação `DELETE` para `/products/:id` com o token JWT no cabeçalho.
 
 ---
 
