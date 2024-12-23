@@ -22,9 +22,6 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
         }
-        .hidden {
-            display: none;
-        }
         h2 {
             text-align: center;
             margin-bottom: 20px;
@@ -52,98 +49,185 @@
         input[type="file"] {
             margin-top: 10px;
         }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        input[type="email"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Perfil do Usuário</h2>
+        <div id="welcomeMessage" class="profile-info"></div>
+
         <div class="profile-info">
             <img id="profileImage" src="" alt="Imagem de Perfil">
-            <div id="userName">Nome: </div>
-            <div id="userEmail">Email: </div>
+            
+            <!-- Edição de Nome -->
+            <div id="userName">
+                Nome: <span id="currentName"> </span>
+                <input type="text" id="editName" placeholder="Digite o novo nome">
+                <button id="saveNameButton">Salvar Nome</button>
+            </div>
+
+            <!-- Edição de Email -->
+            <div id="userEmail">
+                Email: <span id="currentEmail"></span>
+                <input type="email" id="editEmail" placeholder="Digite o novo e-mail">
+                <button id="saveEmailButton">Salvar E-mail</button>
+            </div>
+            
             <div id="userDate">Data de Registro: </div>
         </div>
 
-        <!-- Novo formulário para upload de imagem -->
         <input type="file" id="profileImageInput" accept="image/*">
-
-        <!-- Novo botão para salvar imagem no localStorage -->
         <button id="logoutButton">Sair</button>
     </div>
 
     <script>
-        // URL base da API
         const API_BASE_URL = 'http://localhost:3000';
-    
-        // Função para verificar se o usuário está autenticado
-        function isAuthenticated() {
-            const token = localStorage.getItem('jwtToken');
-            return !!token; // Retorna verdadeiro se o token existir
-        }
-    
-        // Função para carregar os dados do usuário
-        async function loadUserData() {
-            if (!isAuthenticated()) {
-                alert('Você precisa estar logado para acessar esta página.');
-                window.location.href = 'index.html'; // Redireciona para a página de login
-                return;
+
+// Verifica se o usuário está autenticado
+function isAuthenticated() {
+    const token = localStorage.getItem('jwtToken');
+    return !!token;
+}
+
+// Carrega os dados do usuário
+async function loadUserData() {
+    if (!isAuthenticated()) {
+        alert('Você precisa estar logado para acessar esta página.');
+        window.location.href = 'index.html'; 
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/users/profile`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
             }
+        });
 
-            try {
-                const response = await fetch(`${API_BASE_URL}/users/profile`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erro ao carregar os dados do usuário.');
-                }
-
-                const data = await response.json();
-
-                // Atualiza a página com os dados do usuário
-                document.getElementById('userName').textContent = `Nome: ${data.name}`;
-                document.getElementById('userEmail').textContent = `Email: ${data.email}`;
-
-                // Exibe a data de registro
-                const registrationDate = new Date(data.createdAt);
-                if (registrationDate instanceof Date && !isNaN(registrationDate)) {
-                    document.getElementById('userDate').textContent = `Data de Registro: ${reagistrationDate.toLocaleDateString()}`;
-                } else {
-                    document.getElementById('userDate').textContent = 'Data de Registro: inválida';
-                }
-
-                // Exibe a imagem de perfil, se houver no localStorage ou no retorno da API
-                const savedImage = localStorage.getItem('profileImage');
-                if (savedImage) {
-                    document.getElementById('profileImage').src = savedImage;
-                } else {
-                    document.getElementById('profileImage').src = data.profileImage || 'default-profile.png';
-                }
-
-            } catch (error) {
-                console.error(error);
-                alert('Erro ao carregar dados do usuário.');
-            }
+        if (!response.ok) {
+            throw new Error('Erro ao carregar os dados do usuário.');
         }
 
-        // Evento de upload de imagem
-    
-        // Função de logout
-        function logout() {
-            localStorage.removeItem('jwtToken');
-            
-            alert('Você saiu com sucesso!');
-            window.location.href = 'index.html'; // Redireciona para a página de login
+        const data = await response.json();
+
+        // Atualiza os dados no frontend diretamente do retorno da API
+        document.getElementById('welcomeMessage').textContent = `Bem-vindo, ${data.name}!`;
+        document.getElementById('currentName').textContent = data.name;
+        document.getElementById('currentEmail').textContent = data.email;
+
+        const registrationDate = new Date(data.createdAt);
+        document.getElementById('userDate').textContent = `Data de Registro: ${registrationDate.toLocaleDateString()}`;
+
+        // Atualiza a imagem de perfil
+        document.getElementById('profileImage').src = data.profileImage || 'default-profile.png';
+    } catch (error) {
+        console.error(error);
+        alert('Erro ao carregar dados do usuário.');
+    }
+}
+
+// Salva o novo nome do usuário
+async function saveName() {
+    const newName = document.getElementById('editName').value;
+    if (!newName) {
+        alert('Por favor, digite um nome válido!');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/users/profile`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+            },
+            body: JSON.stringify({ name: newName })
+        });
+
+        if (!response.ok) {
+            throw new Error('Erro ao atualizar o nome.');
         }
 
-        // Carregar dados do usuário ao carregar a página
-        loadUserData();
+        const data = await response.json();
 
-        // Evento de logout
-        document.getElementById('logoutButton').addEventListener('click', logout);
+        // Atualiza o nome diretamente no frontend
+        document.getElementById('currentName').textContent = data.name;
+        document.getElementById('editName').value = ''; // Limpa o campo de entrada
+
+        alert('Nome atualizado com sucesso!');
+    } catch (error) {
+        console.error(error);
+        alert('Erro ao salvar o novo nome.');
+    }
+}
+
+// Salva o novo e-mail do usuário
+async function saveEmail() {
+    const newEmail = document.getElementById('editEmail').value;
+    if (!newEmail) {
+        alert('Por favor, digite um e-mail válido!');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/users/profile`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+            },
+            body: JSON.stringify({ email: newEmail })
+        });
+
+        if (!response.ok) {
+            throw new Error('Erro ao atualizar o e-mail.');
+        }
+
+        const data = await response.json();
+
+        // Atualiza o e-mail diretamente no frontend
+        document.getElementById('currentEmail').textContent = data.email;
+        document.getElementById('editEmail').value = ''; // Limpa o campo de entrada
+
+        alert('E-mail atualizado com sucesso!');
+    } catch (error) {
+        console.error(error);
+        alert('Erro ao salvar o novo e-mail.');
+    }
+}
+
+// Função para logout
+function logout() {
+    localStorage.removeItem('jwtToken');
+    alert('Você saiu com sucesso!');
+    window.location.href = 'index.html'; 
+}
+
+// Inicializa a página
+loadUserData();
+
+// Eventos de clique nos botões
+document.getElementById('saveNameButton').addEventListener('click', saveName);
+document.getElementById('saveEmailButton').addEventListener('click', saveEmail);
+document.getElementById('logoutButton').addEventListener('click', logout);
+
     </script>
 </body>
 </html>
