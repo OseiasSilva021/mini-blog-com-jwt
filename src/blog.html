@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -100,7 +99,8 @@
 
 <header>
     <div class="profile">
-        <img src="" alt="Foto de perfil" id="profileImage">
+        <a href="perfil.html"> <img src="" alt="Foto de perfil" id="profileImage"></a>
+       
         <span id="userName"></span>
     </div>
     <h1>Blog Simples</h1>
@@ -121,99 +121,111 @@
 </div>
 
 <script>
-  const userName = document.getElementById("userName")
-  function loadUserData() {
-    const savedUserData = localStorage.getItem('userData');
-    if (savedUserData) {
-        // Converte o JSON armazenado de volta para um objeto
-        return JSON.parse(savedUserData);
-    }
-    // Retorna valores padrão se não houver dados salvos
-    return defaultUserData;
-}
-
-// Carrega os dados do usuário
-const userData = loadUserData();
-
-// Preenche os campos com os dados do usuário
-userName.textContent = userData.name;
-
-
+  const API_BASE_URL = 'http://localhost:3000'; // Substitua com sua URL da API
   const profileImage = document.getElementById('profileImage');
-  
-  const savedImage = localStorage.getItem('profileImage');
-if (savedImage) {
-    profileImage.src = savedImage;
-}
-    // Função para adicionar um novo post
-    function addPost() {
-        const title = document.getElementById('postTitle').value;
-        const author = document.getElementById('postAuthor').value;
-        const content = document.getElementById('postContent').value;
+  const userName = document.getElementById('userName');
 
-        if (!title || !author || !content) {
-            alert('Por favor, preencha todos os campos!');
-            return;
+  async function loadUserData() {
+    const token = localStorage.getItem('jwtToken');
+    if (!token) {
+      alert('Você precisa estar logado para acessar esta página.');
+      window.location.href = 'index.html'; // Redireciona para a página de login se não estiver autenticado
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/profile`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
+      });
 
-        const postDate = new Date().toLocaleDateString('pt-BR');
+      if (!response.ok) throw new Error('Erro ao carregar os dados do usuário.');
 
-        // Criação do post
-        const post = {
-            title: title,
-            author: author,
-            date: postDate,
-            content: content
-        };
+      const data = await response.json();
+      // Preenche o nome e a imagem de perfil
+      userName.textContent = data.name;
+      profileImage.src = "../" + data.profileImage || 'default-profile.png'; // Se não tiver imagem, usa uma padrão
 
-        // Recupera os posts salvos no localStorage
-        let posts = JSON.parse(localStorage.getItem('posts')) || [];
+    } catch (error) {
+      console.error(error);
+      alert('Erro ao carregar dados do usuário.');
+    }
+  }
 
-        // Adiciona o novo post ao array
-        posts.push(post);
+  // Função para adicionar um novo post
+  function addPost() {
+    const title = document.getElementById('postTitle').value;
+    const author = document.getElementById('postAuthor').value;
+    const content = document.getElementById('postContent').value;
 
-        // Salva novamente os posts no localStorage
-        localStorage.setItem('posts', JSON.stringify(posts));
-
-        // Limpa o formulário
-        document.getElementById('postTitle').value = '';
-        document.getElementById('postAuthor').value = '';
-        document.getElementById('postContent').value = '';
-
-        // Atualiza a lista de posts
-        displayPosts();
+    if (!title || !author || !content) {
+      alert('Por favor, preencha todos os campos!');
+      return;
     }
 
-    // Função para exibir os posts
-    function displayPosts() {
-        const postsContainer = document.getElementById('posts');
+    const postDate = new Date().toLocaleDateString('pt-BR');
 
-        // Recupera os posts do localStorage
-        const posts = JSON.parse(localStorage.getItem('posts')) || [];
+    // Criação do post
+    const post = {
+      title: title,
+      author: author,
+      date: postDate,
+      content: content
+    };
 
-        // Limpa o conteúdo atual
-        postsContainer.innerHTML = '';
+    // Recupera os posts salvos no localStorage
+    let posts = JSON.parse(localStorage.getItem('posts')) || [];
 
-        // Cria o HTML para cada post
-        posts.forEach(post => {
-            const postElement = document.createElement('div');
-            postElement.classList.add('post');
-            
-            postElement.innerHTML = `
-                <h2>${post.title}</h2>
-                <div class="meta">
-                    <span>Autor: ${post.author}</span>
-                    <span>Data: ${post.date}</span>
-                </div>
-                <p>${post.content}</p>
-            `;
+    // Adiciona o novo post ao array
+    posts.push(post);
 
-            postsContainer.appendChild(postElement);
-        });
-    }
+    // Salva novamente os posts no localStorage
+    localStorage.setItem('posts', JSON.stringify(posts));
 
-    // Carrega os posts quando a página é carregada
-    window.onload = displayPosts;
+    // Limpa o formulário
+    document.getElementById('postTitle').value = '';
+    document.getElementById('postAuthor').value = '';
+    document.getElementById('postContent').value = '';
+
+    // Atualiza a lista de posts
+    displayPosts();
+  }
+
+  // Função para exibir os posts
+  function displayPosts() {
+    const postsContainer = document.getElementById('posts');
+
+    // Recupera os posts do localStorage
+    const posts = JSON.parse(localStorage.getItem('posts')) || [];
+
+    // Limpa o conteúdo atual
+    postsContainer.innerHTML = '';
+
+    // Cria o HTML para cada post
+    posts.forEach(post => {
+      const postElement = document.createElement('div');
+      postElement.classList.add('post');
+      
+      postElement.innerHTML = `
+        <h2>${post.title}</h2>
+        <div class="meta">
+            <span>Autor: ${post.author}</span>
+            <span>Data: ${post.date}</span>
+        </div>
+        <p>${post.content}</p>
+      `;
+
+      postsContainer.appendChild(postElement);
+    });
+  }
+
+  // Carrega os dados do usuário e os posts quando a página é carregada
+  window.onload = () => {
+    loadUserData();
+    displayPosts();
+  };
 </script>
 
 </body>
