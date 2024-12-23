@@ -15,6 +15,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  profileImage: {
+    type: String,
+     // Caminho padrão para a imagem
+  },
 }, { timestamps: true }); 
 
 // Encrypt password before saving the user

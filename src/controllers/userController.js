@@ -191,13 +191,17 @@ const getUserProfile = async (req, res) => {
 const updateProfileImage = async (req, res) => {
   try {
     const userId = req.user.id;
-    const profileImage = req.file ? req.file.filename : null;
+    const profileImage = req.file ? `uploads/${req.file.filename}` : null;
 
     if (!profileImage) {
       return res.status(400).json({ message: 'Nenhuma imagem foi enviada.' });
     }
 
-    const user = await User.findByIdAndUpdate(userId, { profileImage }, { new: true });
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { profileImage },
+      { new: true }
+    );
 
     if (!user) {
       return res.status(404).json({ message: 'Usuário não encontrado.' });
@@ -212,6 +216,8 @@ const updateProfileImage = async (req, res) => {
     res.status(500).json({ message: 'Erro ao atualizar a imagem de perfil.' });
   }
 };
+
+// Rota protegida para atualizar imagem
 
 
 

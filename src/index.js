@@ -1,9 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const connectDB = require('./config/db');
-const path = require('path');  // Para resolver caminhos de arquivos estáticos
 
 const app = express();
 
@@ -14,10 +14,10 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
-// Serve arquivos estáticos da pasta 'uploads' para o frontend
+// Serve arquivos estáticos da pasta 'uploads'
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Rotas de usuário e produto
+// Rotas
 app.use(userRoutes);
 app.use(productRoutes);
 
