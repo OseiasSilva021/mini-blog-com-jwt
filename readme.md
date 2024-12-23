@@ -1,248 +1,220 @@
-# API RESTful para Gerenciamento de Usuários e Produtos 🧑‍💻🛒
+# 🌟 API RESTful para Gerenciamento de Usuários e Produtos 🧑‍💻🛒
 
 Bem-vindo à **API RESTful para Gerenciamento de Usuários e Produtos**! Este projeto permite que você gerencie usuários e produtos de uma maneira simples e eficiente com autenticação via JWT (JSON Web Token). 🚀
 
 ---
 
-## Funcionalidades ✨
+## 📋 Funcionalidades
 
-- **CRUD de Usuários**: Criar, ler, atualizar e excluir usuários. 👤
-- **CRUD de Produtos**: Gerenciar produtos com nome e preço. 🛘️
-- **Autenticação com JWT**: Segurança com autenticação baseada em token. 🔐
-- **Validação de Dados**: Garante que os dados fornecidos sejam válidos e seguros. ✅
-
----
-
-## Tecnologias 🔧
-
-- **Express.js**: Framework minimalista para criar a API. 🚗
-- **MongoDB**: Banco de dados NoSQL para armazenar usuários e produtos. 🗃️
-- **Mongoose**: ODM (Object Data Modeling) para trabalhar com MongoDB. 🛠️
-- **JWT**: Autenticação segura com tokens. 🔑
-- **bcryptjs**: Hashing de senhas para maior segurança. 🔒
-- **CORS**: Permite que a API seja acessada de diferentes domínios. 🌐
+✅ **CRUD de Usuários**: Criar, ler, atualizar e excluir usuários. 👤  
+✅ **CRUD de Produtos**: Gerenciar produtos com nome e preço. 🛒  
+✅ **Autenticação com JWT**: Segurança com autenticação baseada em token. 🔒  
+✅ **Validação de Dados**: Garante que os dados fornecidos sejam válidos e seguros.   
+✅ **Recuperação de Senha**: Possibilidade de redefinir senhas esquecidas. 🔑  
+✅ **Autenticação de Dois Fatores (2FA)**: Uma camada extra de segurança. 🔐
 
 ---
 
-## Instalação 📥
+## 🛠️ Tecnologias Utilizadas
 
-### Passo 1: Clone o Repositório
+- **Node.js** 🟢
+- **Express.js** 🚀
+- **MongoDB** 🍃
+- **Mongoose** 🔗
+- **JWT (Json Web Token)** 🔒
+- **Bcrypt** 🛡️
+- **Joi** ✅
+- **Nodemailer** 📧
 
-Clone o repositório para o seu ambiente local:
+---
 
+## 📦 Instalação e Execução
+
+### 1️⃣ Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/api-gerenciamento.git
+$ git clone https://github.com/seuusuario/api-gerenciamento.git
 ```
 
-### Passo 2: Instale as Dependências
-
-Acesse a pasta do projeto e instale as dependências:
-
+### 2️⃣ Acesse a pasta do projeto:
 ```bash
-cd api-gerenciamento
-npm install
+$ cd api-gerenciamento
 ```
 
-### Passo 3: Configure as Variáveis de Ambiente
-
-Crie um arquivo `.env` na raiz do projeto e adicione as variáveis necessárias, como a URI do MongoDB:
-
+### 3️⃣ Instale as dependências:
+```bash
+$ npm install
 ```
+
+### 4️⃣ Configure o arquivo `.env`:
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+```env
 MONGO_URI=mongodb://localhost:27017/nome_do_banco
-JWT_SECRET=sua_chave_secreta
+JWT_SECRET=sua-chave-secreta
 PORT=3000
+EMAIL_USER=seu-email@gmail.com
+EMAIL_PASS=sua-senha-de-app
 ```
 
----
-
-## Rodando o Projeto 🚀
-
-Para iniciar a API, basta rodar o comando:
-
+### 5️⃣ Execute o servidor:
 ```bash
-npm start
+$ npm start
 ```
-
-A API estará disponível em `http://localhost:3000`.
+O servidor estará rodando em: `http://localhost:3000` 🎉
 
 ---
 
-## Endpoints da API 📡
+## 🔀 Rotas Disponíveis
 
-### 1. **Registrar Usuário (POST)** 👥
-
-- **URL**: `/users`
-- **Método**: `POST`
-- **Body (JSON)**:
-
+### 1️⃣ **Criar Usuário**  
+**POST** `/users`  
+📥 **Body:**
 ```json
 {
-  "name": "João Silva",
-  "email": "joao@email.com",
-  "password": "senha123"
+  "name": "Seu Nome",
+  "email": "seuemail@email.com",
+  "password": "suaSenha123"
 }
 ```
-
-- **Resposta**:
-
+📤 **Resposta:**
 ```json
 {
-  "message": "Usuário registrado com sucesso!"
-}
-```
-
----
-
-### 2. **Login (POST)** 🔑
-
-- **URL**: `/login`
-- **Método**: `POST`
-- **Body (JSON)**:
-
-```json
-{
-  "email": "joao@email.com",
-  "password": "senha123"
-}
-```
-
-- **Resposta**:
-
-```json
-{
-  "token": "seu_token_jwt_aqui"
+  "user": {
+    "_id": "id_do_usuario",
+    "name": "Seu Nome",
+    "email": "seuemail@email.com"
+  }
 }
 ```
 
 ---
 
-### 3. **Criar Produto (POST)** 🛒
-
-- **URL**: `/products`
-- **Método**: `POST`
-- **Cabeçalhos**:
-  - `Authorization: Bearer seu_token_jwt_aqui`
-
-- **Body (JSON)**:
-
+### 2️⃣ **Login de Usuário**  
+**POST** `/login`  
+📥 **Body:**
 ```json
 {
-  "name": "Camiseta Personalizada",
-  "price": 39.99
+  "email": "seuemail@email.com",
+  "password": "suaSenha123"
 }
 ```
-
-- **Resposta**:
-
+📤 **Resposta:**
 ```json
 {
-  "message": "Produto criado com sucesso!"
+  "token": "seu_jwt_token"
 }
 ```
 
 ---
 
-### 4. **Listar Produtos (GET)** 📋
+### 3️⃣ **Recuperação de Senha**  
+**POST** `/recover-password`  
+📥 **Body:**
+```json
+{
+  "email": "seuemail@email.com"
+}
+```
+📤 **Resposta:**
+```json
+{
+  "message": "Instruções para redefinir a senha foram enviadas para o seu email."
+}
+```
 
-- **URL**: `/products`
-- **Método**: `GET`
-- **Cabeçalhos**:
-  - `Authorization: Bearer seu_token_jwt_aqui`
+---
 
-- **Resposta**:
+### 4️⃣ **Autenticação de Dois Fatores (2FA)**  
+**POST** `/2fa`  
+📥 **Body:**
+```json
+{
+  "email": "seuemail@email.com",
+  "code": "123456"
+}
+```
+📤 **Resposta:**
+```json
+{
+  "message": "Autenticação de dois fatores concluída com sucesso."
+}
+```
 
+---
+
+### 5️⃣ **Listar Todos os Usuários**  
+**GET** `/users`  
+📤 **Resposta:**
 ```json
 [
   {
-    "_id": "produto_id_aqui",
-    "name": "Camiseta Personalizada",
-    "price": 39.99
+    "_id": "id_do_usuario",
+    "name": "Nome",
+    "email": "email@email.com"
   }
 ]
 ```
 
 ---
 
-### 5. **Atualizar Produto (PUT)** ✏️
-
-- **URL**: `/products/:id`
-- **Método**: `PUT`
-- **Cabeçalhos**:
-  - `Authorization: Bearer seu_token_jwt_aqui`
-
-- **Body (JSON)**:
-
+### 6️⃣ **Atualizar Usuário**  
+**PUT** `/users/:id`  
+📥 **Body (opcional):**
 ```json
 {
-  "name": "Camiseta Personalizada - Nova",
-  "price": 49.99
+  "name": "Novo Nome",
+  "password": "novaSenha123"
 }
 ```
-
-- **Resposta**:
-
+📤 **Resposta:**
 ```json
 {
-  "message": "Produto atualizado com sucesso!"
-}
-```
-
----
-
-### 6. **Deletar Produto (DELETE)** ❌
-
-- **URL**: `/products/:id`
-- **Método**: `DELETE`
-- **Cabeçalhos**:
-  - `Authorization: Bearer seu_token_jwt_aqui`
-
-- **Resposta**:
-
-```json
-{
-  "message": "Produto deletado com sucesso!"
+  "message": "Usuário atualizado com sucesso",
+  "user": {
+    "_id": "id_do_usuario",
+    "name": "Novo Nome",
+    "email": "email@email.com"
+  }
 }
 ```
 
 ---
 
-## Testando a API no Postman 🧑‍💻
-
-Siga os passos abaixo para testar a API usando o Postman:
-
-1. **Registrar um Usuário**:
-   - Envie uma solicitação `POST` para `/users` com o corpo do usuário.
-   
-2. **Login**:
-   - Envie uma solicitação `POST` para `/login` com as credenciais do usuário e receba o token JWT.
-
-3. **Criar Produto**:
-   - Envie uma solicitação `POST` para `/products` com o corpo do produto, incluindo o token JWT no cabeçalho `Authorization`.
-
-4. **Listar Produtos**:
-   - Envie uma solicitação `GET` para `/products` com o token JWT no cabeçalho.
-
-5. **Atualizar Produto**:
-   - Envie uma solicitação `PUT` para `/products/:id` com o corpo da atualização e o token JWT no cabeçalho.
-
-6. **Deletar Produto**:
-   - Envie uma solicitação `DELETE` para `/products/:id` com o token JWT no cabeçalho.
+### 7️⃣ **Deletar Usuário**  
+**DELETE** `/users/:id`  
+📤 **Resposta:**
+```json
+{
+  "message": "Usuário deletado com sucesso",
+  "user": {
+    "_id": "id_do_usuario",
+    "name": "Nome",
+    "email": "email@email.com"
+  }
+}
+```
 
 ---
 
-## Contribuindo 🤝
+## 🛡️ Middleware
 
-Se você quiser contribuir com melhorias ou adicionar novas funcionalidades, fique à vontade! Abra uma *issue* ou envie um *pull request* com suas alterações.
-
----
-
-## Licença 📜
-
-Este projeto está licenciado sob a **MIT License.**
+- **Validação de Dados:** Utiliza **Joi** para validar nome, email e senha durante a criação de usuários.  
+- **Autenticação:** Proteja suas rotas com JWT para garantir acesso seguro.  
+- **2FA:** Confirmação de identidade através de códigos temporários.  
 
 ---
 
-🎉 **Obrigado por usar minha API de Gerenciamento de Usuários e Produtos!** 🎉
+## 📝 Observações
+
+⚠️ **Recomendações de Segurança:**  
+- Utilize HTTPS em produção.  
+- Proteja suas variáveis de ambiente.  
+- Limite o acesso às rotas de atualização e exclusão.
+
+🚀 **Futuras Implementações:**  
+- Paginação e filtragem na listagem de usuários e produtos.  
+- Logs de auditoria para rastrear ações do sistema.  
 
 ---
+
+Feito com ❤️ por [Seu Nome](https://github.com/seuusuario) 🙌
 
