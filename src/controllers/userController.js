@@ -28,15 +28,28 @@ const createUser = async (req, res) => {
 // Função de login de usuário
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email });
 
-  if (!user) return res.status(400).json({ message: 'Usuário não encontrado' });
+  try {
+    // Verifique se o usuário existe
+    const user = await User.findOne({ email });
 
-  const isValidPassword = await user.matchPassword(password);
-  if (!isValidPassword) return res.status(400).json({ message: 'Senha incorreta' });
+    if (!user || !user.validatePassword(password)) {
+      return res.status(401).json({ message: 'Credenciais inválidas' });
+    }
 
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-  res.status(200).json({ token });
+    // Gerar o token JWT com o id do usuário e outras informações necessárias
+    const token = jwt.sign(
+      { id: user._id, email: user.email, name: user.name }, // Incluindo id, email e nome no payload
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' } // A duração do token pode ser ajustada conforme necessário
+    );
+
+    // Enviar a resposta com o token
+    res.json({ token });
+
+  } catch (err) {
+    res.status(500).json({ message: 'Erro ao fazer login', error: err.message });
+  }
 };
 
 const getAllUsers = async (req, res) => {
@@ -47,6 +60,8 @@ const getAllUsers = async (req, res) => {
     res.status(500).json({ message: 'Erro ao buscar usuários' });
   }
 };
+
+
 
 const deleteUser = async (req, res) => {
   const { id } = req.params;
@@ -113,6 +128,35 @@ const updateUser = async (req, res) => {
   }
 };
 
-module.exports = { createUser, loginUser, getAllUsers, deleteUser, updateUser };
+
+const getUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.id; // Pegando o id do usuário do objeto req.user
+    const user = await User.findById(userId).select('-password'); // Excluindo a senha da resposta
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado' });
+    }
+
+    res.json({
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt,
+      profileImage: user.profileImage // Se você tiver esse campo
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Erro ao obter perfil do usuário', error: err.message });
+  }
+};
+
+
+module.exports = {
+  createUser,
+  loginUser,
+  getAllUsers,
+  deleteUser,
+  updateUser,
+  getUserProfile, // Exportando a função getUserProfile
+};
 
 
