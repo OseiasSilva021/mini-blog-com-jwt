@@ -110,7 +110,7 @@
                 // Exibe a data de registro
                 const registrationDate = new Date(data.createdAt);
                 if (registrationDate instanceof Date && !isNaN(registrationDate)) {
-                    document.getElementById('userDate').textContent = `Data de Registro: ${registrationDate.toLocaleDateString()}`;
+                    document.getElementById('userDate').textContent = `Data de Registro: ${reagistrationDate.toLocaleDateString()}`;
                 } else {
                     document.getElementById('userDate').textContent = 'Data de Registro: inválida';
                 }
@@ -130,19 +130,7 @@
         }
 
         // Evento de upload de imagem
-        document.getElementById('profileImageInput').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onloadend = function () {
-                    const base64Image = reader.result;
-                    localStorage.setItem('profileImage', base64Image); // Salva a imagem no localStorage
-                    document.getElementById('profileImage').src = base64Image; // Atualiza a imagem na tela
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
+    
         // Função de logout
         function logout() {
             localStorage.removeItem('jwtToken');
