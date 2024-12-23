@@ -1,5 +1,5 @@
 const express = require('express');
-const { createUser, loginUser, getAllUsers, deleteUser, updateUser, getUserProfile, updateProfileImage } = require('../controllers/userController');
+const { createUser, loginUser, getAllUsers, deleteUser, updateUser, getUserProfile, updateProfileImage, forgotPassword, resetPassword } = require('../controllers/userController');
 const { validateUser } = require('../middleware/validateMiddleware');
 const authenticateToken = require('../middleware/authMiddleware');
 const multer = require('multer');
@@ -30,5 +30,10 @@ router.delete('/users/:id', deleteUser);
 
 // Rota para upload de imagem de perfil (utilizando o multer)
 router.put('/users/profile-image', authenticateToken, upload.single('profileImage'), updateProfileImage);
+
+router.post('/forgot-password', forgotPassword);
+
+// Rota para redefinir a senha com o token enviado por e-mail
+router.post('/reset-password', resetPassword);
 
 module.exports = router;

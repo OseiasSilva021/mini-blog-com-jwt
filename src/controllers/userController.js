@@ -2,6 +2,8 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 const bcrypt = require('bcrypt')
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 // Validação dos dados de entrada
 const userSchema = Joi.object({
@@ -217,7 +219,86 @@ const updateProfileImage = async (req, res) => {
   }
 };
 
-// Rota protegida para atualizar imagem
+
+async function forgotPassword(req, res) {
+  const { email } = req.body;
+
+  try {
+      // Verificar se o usuário existe
+      const user = await User.findOne({ email });
+      if (!user) {
+          return res.status(404).json({ message: 'Usuário não encontrado!' });
+      }
+
+      // Gerar um token único para recuperação
+      const resetToken = crypto.randomBytes(32).toString('hex');
+
+      // Definir a expiração do token (1 hora)
+      const resetTokenExpiration = Date.now() + 3600000; // 1 hora
+
+      // Salvar o token e a data de expiração no banco de dados
+      user.resetPasswordToken = resetToken;
+      user.resetPasswordExpires = resetTokenExpiration;
+      await user.save();
+
+      // Configurar o transporte de e-mail (usando Nodemailer)
+      const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+              user: 'soseias894@gmail.com', // Substitua com seu e-mail
+              pass: 'oseias21'             // Substitua com sua senha
+          }
+      });
+
+      // Criar o link de recuperação
+      const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
+
+      // Enviar o e-mail
+      const mailOptions = {
+          to: email,
+          from: 'soseias894@gmail.com',
+          subject: 'Recuperação de Senha',
+          text: `Você solicitou a recuperação de senha. Clique no link abaixo para redefinir sua senha:\n\n${resetUrl}`
+      };
+
+      await transporter.sendMail(mailOptions);
+
+      res.status(200).json({ message: 'Link de recuperação enviado para o seu e-mail!' });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Erro ao processar a solicitação de recuperação de senha.' });
+  }
+}
+
+
+// Função para redefinir a senha com o token
+async function resetPassword(req, res) {
+  const { token, newPassword } = req.body;
+
+  try {
+      // Buscar o usuário com o token de recuperação
+      const user = await User.findOne({
+          resetPasswordToken: token,
+          resetPasswordExpires: { $gt: Date.now() }  // Verifica se o token não expirou
+      });
+
+      if (!user) {
+          return res.status(400).json({ message: 'Token inválido ou expirado!' });
+      }
+
+      // Atualizar a senha do usuário
+      user.password = newPassword;  // Aqui você deve hash a senha antes de salvar no banco
+      user.resetPasswordToken = undefined;  // Limpar o token
+      user.resetPasswordExpires = undefined; // Limpar a expiração
+
+      await user.save();
+
+      res.status(200).json({ message: 'Senha alterada com sucesso!' });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Erro ao tentar redefinir a senha.' });
+  }
+}
 
 
 
@@ -230,7 +311,9 @@ module.exports = {
   deleteUser,
   updateUser,
   getUserProfile, 
-  updateProfileImage,// Exportando a função getUserProfile
+  updateProfileImage,
+  forgotPassword, 
+  resetPassword,
 };
 
 

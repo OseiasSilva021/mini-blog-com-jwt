@@ -17,9 +17,17 @@ const UserSchema = new mongoose.Schema({
   },
   profileImage: {
     type: String,
-     // Caminho padrão para a imagem
+    // Caminho padrão para a imagem
   },
-}, { timestamps: true }); 
+  resetPasswordToken: {
+    type: String, // Token para recuperação
+    required: false
+  },
+  resetPasswordExpires: {
+    type: Date, // Data de expiração do token de recuperação
+    required: false
+  }
+}, { timestamps: true });
 
 // Encrypt password before saving the user
 UserSchema.pre('save', async function(next) {
