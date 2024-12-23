@@ -1,0 +1,220 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Simples</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #007BFF;
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header .profile {
+            display: flex;
+            align-items: center;
+        }
+
+        header .profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .blog-container {
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        .post {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .post h2 {
+            color: #333;
+        }
+
+        .post p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .post .meta {
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        .post .meta span {
+            margin-right: 15px;
+        }
+
+        .add-post-form {
+            background-color: #fff;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .add-post-form input, .add-post-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .add-post-form button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-post-form button:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="profile">
+        <img src="" alt="Foto de perfil" id="profileImage">
+        <span id="userName"></span>
+    </div>
+    <h1>Blog Simples</h1>
+</header>
+
+<div class="blog-container">
+    <!-- Posts vão aparecer aqui -->
+    <div id="posts"></div>
+
+    <!-- Formulário para adicionar novos posts -->
+    <div class="add-post-form">
+        <h2>Adicionar Novo Post</h2>
+        <input type="text" id="postTitle" placeholder="Título do Post" required>
+        <input type="text" id="postAuthor" placeholder="Autor" required>
+        <textarea id="postContent" placeholder="Conteúdo do Post" rows="4" required></textarea>
+        <button onclick="addPost()">Adicionar Post</button>
+    </div>
+</div>
+
+<script>
+  const userName = document.getElementById("userName")
+  function loadUserData() {
+    const savedUserData = localStorage.getItem('userData');
+    if (savedUserData) {
+        // Converte o JSON armazenado de volta para um objeto
+        return JSON.parse(savedUserData);
+    }
+    // Retorna valores padrão se não houver dados salvos
+    return defaultUserData;
+}
+
+// Carrega os dados do usuário
+const userData = loadUserData();
+
+// Preenche os campos com os dados do usuário
+userName.textContent = userData.name;
+
+
+  const profileImage = document.getElementById('profileImage');
+  
+  const savedImage = localStorage.getItem('profileImage');
+if (savedImage) {
+    profileImage.src = savedImage;
+}
+    // Função para adicionar um novo post
+    function addPost() {
+        const title = document.getElementById('postTitle').value;
+        const author = document.getElementById('postAuthor').value;
+        const content = document.getElementById('postContent').value;
+
+        if (!title || !author || !content) {
+            alert('Por favor, preencha todos os campos!');
+            return;
+        }
+
+        const postDate = new Date().toLocaleDateString('pt-BR');
+
+        // Criação do post
+        const post = {
+            title: title,
+            author: author,
+            date: postDate,
+            content: content
+        };
+
+        // Recupera os posts salvos no localStorage
+        let posts = JSON.parse(localStorage.getItem('posts')) || [];
+
+        // Adiciona o novo post ao array
+        posts.push(post);
+
+        // Salva novamente os posts no localStorage
+        localStorage.setItem('posts', JSON.stringify(posts));
+
+        // Limpa o formulário
+        document.getElementById('postTitle').value = '';
+        document.getElementById('postAuthor').value = '';
+        document.getElementById('postContent').value = '';
+
+        // Atualiza a lista de posts
+        displayPosts();
+    }
+
+    // Função para exibir os posts
+    function displayPosts() {
+        const postsContainer = document.getElementById('posts');
+
+        // Recupera os posts do localStorage
+        const posts = JSON.parse(localStorage.getItem('posts')) || [];
+
+        // Limpa o conteúdo atual
+        postsContainer.innerHTML = '';
+
+        // Cria o HTML para cada post
+        posts.forEach(post => {
+            const postElement = document.createElement('div');
+            postElement.classList.add('post');
+            
+            postElement.innerHTML = `
+                <h2>${post.title}</h2>
+                <div class="meta">
+                    <span>Autor: ${post.author}</span>
+                    <span>Data: ${post.date}</span>
+                </div>
+                <p>${post.content}</p>
+            `;
+
+            postsContainer.appendChild(postElement);
+        });
+    }
+
+    // Carrega os posts quando a página é carregada
+    window.onload = displayPosts;
+</script>
+
+</body>
+</html>

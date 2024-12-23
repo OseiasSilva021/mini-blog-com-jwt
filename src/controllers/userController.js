@@ -18,12 +18,22 @@ const createUser = async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
+    // Verifica se o e-mail já está registrado
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Este e-mail já está registrado!' });
+    }
+
+    // Cria o novo usuário se o e-mail não existir
     const user = await User.create({ name, email, password });
+
     res.status(201).json({ user });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Erro ao criar usuário' });
   }
 };
+
 
 // Função de login de usuário
 const loginUser = async (req, res) => {
@@ -33,24 +43,31 @@ const loginUser = async (req, res) => {
     // Verifique se o usuário existe
     const user = await User.findOne({ email });
 
-    if (!user || !user.validatePassword(password)) {
-      return res.status(401).json({ message: 'Credenciais inválidas' });
+    if (!user) {
+      return res.status(400).json({ message: 'Usuário não encontrado!' });
     }
 
-    // Gerar o token JWT com o id do usuário e outras informações necessárias
+    // Verifique a senha
+    const isMatch = await user.matchPassword(password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Senha incorreta!' });
+    }
+
+    // Gerar o token JWT
     const token = jwt.sign(
-      { id: user._id, email: user.email, name: user.name }, // Incluindo id, email e nome no payload
+      { id: user._id, email: user.email, name: user.name },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' } // A duração do token pode ser ajustada conforme necessário
+      { expiresIn: '1h' }
     );
 
-    // Enviar a resposta com o token
     res.json({ token });
 
   } catch (err) {
     res.status(500).json({ message: 'Erro ao fazer login', error: err.message });
   }
 };
+
 
 const getAllUsers = async (req, res) => {
   try {
@@ -141,7 +158,7 @@ const getUserProfile = async (req, res) => {
     res.json({
       name: user.name,
       email: user.email,
-      createdAt: user.createdAt,
+      createdAt: user.createdAt ? user.createdAt.toISOString() : null,
       profileImage: user.profileImage // Se você tiver esse campo
     });
   } catch (err) {
@@ -150,13 +167,55 @@ const getUserProfile = async (req, res) => {
 };
 
 
+const updateProfileImage = async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'Token não fornecido' });
+  }
+
+  try {
+    // Verifica o token JWT
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    // Encontra o usuário no banco de dados
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado' });
+    }
+
+    // Verifica se o arquivo foi enviado
+    if (!req.file) {
+      return res.status(400).json({ message: 'Nenhuma imagem foi enviada' });
+    }
+
+    console.log('Arquivo recebido: ', req.file); // Verificação para o arquivo recebido
+
+    // Atualiza o campo de imagem de perfil no banco de dados com o caminho relativo
+    user.profileImage = `uploads/${req.file.filename}`;
+    await user.save();
+
+    // Retorna a resposta com o novo caminho da imagem
+    res.json({ message: 'Imagem de perfil atualizada com sucesso', profileImage: user.profileImage });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erro ao atualizar imagem de perfil' });
+  }
+};
+
+
+
+
+
 module.exports = {
   createUser,
   loginUser,
   getAllUsers,
   deleteUser,
   updateUser,
-  getUserProfile, // Exportando a função getUserProfile
+  getUserProfile, 
+  updateProfileImage,// Exportando a função getUserProfile
 };
 
 

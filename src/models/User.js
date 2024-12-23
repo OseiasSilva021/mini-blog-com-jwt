@@ -15,15 +15,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  date: {
-    type: Date,
-    default: Date.now
-  },  
-  profileImage: {
-    type: String,  // Para armazenar a URL ou caminho da imagem de perfil
-    default: 'default-avatar.png',  // Imagem padrão caso o usuário não tenha uma
-  }
-});
+}, { timestamps: true }); 
 
 // Encrypt password before saving the user
 UserSchema.pre('save', async function(next) {

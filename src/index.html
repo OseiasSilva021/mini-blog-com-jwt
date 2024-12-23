@@ -1,0 +1,203 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login e Registro</title>
+    <style>
+      body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    width: 100%;
+    max-width: 400px;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.hidden {
+    display: none;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+input {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    padding: 10px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Formulário de Login -->
+        <div class="form-container" id="login-container">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="Email" required>
+                <input type="password" id="loginPassword" placeholder="Senha" required>
+                <button type="submit">Entrar</button>
+                <p>Não tem uma conta? <a href="#" id="toRegister">Registrar-se</a></p>
+            </form>
+        </div>
+
+        <!-- Formulário de Registro -->
+        <div class="form-container hidden" id="register-container">
+            <h2>Registro</h2>
+            <form id="registerForm">
+                <input type="text" id="registerName" placeholder="Nome Completo" required>
+                <input type="email" id="registerEmail" placeholder="Email" required>
+                <input type="password" id="registerPassword" placeholder="Senha" required>
+                <input type="password" id="registerConfirmPassword" placeholder="Confirme a Senha" required>
+                <button type="submit">Registrar</button>
+                <p>Já tem uma conta? <a href="#" id="toLogin">Entrar</a></p>
+            </form>
+        </div>
+    </div>
+    <script>
+     // Alternar entre Login e Registro
+const loginContainer = document.getElementById('login-container');
+const registerContainer = document.getElementById('register-container');
+const toRegister = document.getElementById('toRegister');
+const toLogin = document.getElementById('toLogin');
+
+toRegister.addEventListener('click', () => {
+    loginContainer.classList.add('hidden');
+    registerContainer.classList.remove('hidden');
+});
+
+toLogin.addEventListener('click', () => {
+    registerContainer.classList.add('hidden');
+    loginContainer.classList.remove('hidden');
+});
+
+// URL base da API
+const API_BASE_URL = 'http://localhost:3000';
+
+// Validação do formulário de registro e integração com a API
+const registerForm = document.getElementById('registerForm');
+registerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('registerName').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+    if (password !== confirmPassword) {
+        alert('As senhas não coincidem!');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/users`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            alert('Registro bem-sucedido!');
+            registerForm.reset();
+            registerContainer.classList.add('hidden');
+            loginContainer.classList.remove('hidden');
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Erro ao registrar usuário!');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Erro de conexão com o servidor!');
+    }
+});
+
+// Validação do formulário de login e integração com a API
+const loginForm = document.getElementById('loginForm');
+loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('jwtToken', data.token); // Armazena o JWT no localStorage
+            alert('Login bem-sucedido!');
+            window.location.href = './perfil.html'; // Redireciona para uma página autenticada
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Erro ao fazer login!');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Erro de conexão com o servidor!');
+    }
+});
+
+// Função para checar autenticação
+function isAuthenticated() {
+    const token = localStorage.getItem('jwtToken');
+    return !!token; // Retorna verdadeiro se o token existir
+}
+
+// Exemplo de logout
+function logout() {
+    localStorage.removeItem('jwtToken');
+    alert('Você saiu com sucesso!');
+    window.location.href = '/login.html'; // Redireciona para a página de login
+}
+
+
+
+    </script>
+</body>
+</html>

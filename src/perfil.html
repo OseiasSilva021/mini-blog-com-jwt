@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .hidden {
+            display: none;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .profile-info {
+            margin-bottom: 15px;
+        }
+        img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+        }
+        button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input[type="file"] {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Perfil do Usuário</h2>
+        <div class="profile-info">
+            <img id="profileImage" src="api-com-node.js-e-jwt\uploads\1734966475039_php.jpg" alt="Imagem de Perfil">
+            <div id="userName">Nome: </div>
+            <div id="userEmail">Email: </div>
+            <div id="userDate">Data de Registro: </div>
+        </div>
+
+        <!-- Novo formulário para upload de imagem -->
+        <input type="file" id="profileImageInput" accept="image/*">
+        <button id="uploadImageButton">Atualizar Imagem</button>
+
+        <!-- Novo botão para salvar imagem no localStorage -->
+        <button id="saveImageButton">Salvar Imagem Permanentemente</button>
+
+        <button id="logoutButton">Sair</button>
+    </div>
+
+    <script>
+        // URL base da API
+        const API_BASE_URL = 'http://localhost:3000';
+    
+        // Função para verificar se o usuário está autenticado
+        function isAuthenticated() {
+            const token = localStorage.getItem('jwtToken');
+            return !!token; // Retorna verdadeiro se o token existir
+        }
+    
+        // Função para carregar os dados do usuário
+        async function loadUserData() {
+            if (!isAuthenticated()) {
+                alert('Você precisa estar logado para acessar esta página.');
+                window.location.href = 'index.html'; // Redireciona para a página de login
+                return;
+            }
+    
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/profile`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+                    }
+                });
+    
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar os dados do usuário.');
+                }
+    
+                const data = await response.json();
+    
+                // Atualiza a página com os dados do usuário
+                document.getElementById('userName').textContent = `Nome: ${data.name}`;
+                document.getElementById('userEmail').textContent = `Email: ${data.email}`;
+                
+                // Exibe a data de registro
+                const registrationDate = new Date(data.createdAt); // A data precisa ser uma string ISO 8601
+                if (registrationDate instanceof Date && !isNaN(registrationDate)) {
+                    document.getElementById('userDate').textContent = `Data de Registro: ${registrationDate.toLocaleDateString()}`;
+                } else {
+                    document.getElementById('userDate').textContent = 'Data de Registro: inválida';
+                    console.log(data.createdAt);
+                }
+    
+                // Exibe a imagem de perfil se houver
+                if (data.profileImage) {
+                    // Diretamente usa o caminho que vem do servidor
+                    document.getElementById('profileImage').src = data.profileImage;
+                    // Salva a imagem no localStorage para renderizar permanentemente
+                    localStorage.setItem('profileImage', data.profileImage);
+                }
+    
+            } catch (error) {
+                console.error(error);
+                alert('Erro ao carregar dados do usuário.');
+            }
+        }
+    
+        // Função para enviar a imagem de perfil para o servidor
+        async function updateProfileImage() {
+            const fileInput = document.getElementById('profileImageInput');
+            const file = fileInput.files[0]; // Obtém o arquivo selecionado
+    
+            if (!file) {
+                alert('Por favor, selecione uma imagem para fazer upload.');
+                return;
+            }
+    
+            const formData = new FormData();
+            formData.append('profileImage', file);
+    
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/profile-image`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+                    },
+                    body: formData // Envia o arquivo como FormData
+                });
+    
+                if (!response.ok) {
+                    throw new Error('Erro ao atualizar a imagem de perfil.');
+                }
+    
+                const data = await response.json();
+    
+                alert('Imagem de perfil atualizada com sucesso!');
+    
+                // Atualiza a imagem na tela com o novo caminho retornado pelo servidor
+                document.getElementById('profileImage').src = data.profileImage;
+    
+                // Salva a nova imagem no localStorage para renderização permanente
+                localStorage.setItem('profileImage', data.profileImage);
+    
+            } catch (error) {
+                console.error(error);
+                alert('Erro ao atualizar a imagem de perfil.');
+            }
+        }
+
+        // Função para salvar a imagem permanentemente no localStorage
+        function saveImageToLocalStorage() {
+            const profileImageSrc = document.getElementById('profileImage').src;
+
+            if (profileImageSrc) {
+                localStorage.setItem('profileImage', profileImageSrc);
+                alert('Imagem salva permanentemente!');
+            } else {
+                alert('Nenhuma imagem de perfil para salvar.');
+            }
+        }
+    
+        // Função de logout
+        function logout() {
+            localStorage.removeItem('jwtToken');
+            localStorage.removeItem('profileImage');
+            alert('Você saiu com sucesso!');
+            window.location.href = 'index.html'; // Redireciona para a página de login
+        }
+    
+        // Carregar dados do usuário ao carregar a página
+        loadUserData();
+    
+        // Evento de upload de imagem
+        document.getElementById('uploadImageButton').addEventListener('click', updateProfileImage);
+    
+        // Evento de salvar imagem permanentemente
+        document.getElementById('saveImageButton').addEventListener('click', saveImageToLocalStorage);
+
+        // Evento de logout
+        document.getElementById('logoutButton').addEventListener('click', logout);
+    </script>
+</body>
+</html>
