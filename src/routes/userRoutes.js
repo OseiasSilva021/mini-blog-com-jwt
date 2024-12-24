@@ -20,7 +20,7 @@ const router = express.Router();
 router.post('/users', validateUser, createUser);
 
 // Rota de login de usuário
-router.post('/login', loginUser); 
+router.post('/login', loginRateLimiter, loginUser); 
 
 // Rota para obter todos os usuários
 router.get('/users', getAllUsers); 

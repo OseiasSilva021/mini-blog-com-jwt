@@ -9,7 +9,7 @@ const nodemailer = require('nodemailer');
 
 const loginRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // Limitar a 5 tentativas
+  max: 7, // Limitar a 5 tentativas
   message: 'Muitas tentativas de login. Tente novamente em 15 minutos.',
   standardHeaders: true,
   legacyHeaders: false,
@@ -303,31 +303,37 @@ async function resetPassword(req, res) {
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
-  try {
-    const user = await User.findOne({ email });
+  // Aplicando o rate limiter antes de qualquer lógica de login
+  loginRateLimiter(req, res, async () => {
+    try {
+      const user = await User.findOne({ email });
 
-    if (!user) {
-      return res.status(400).json({ message: 'Usuário não encontrado!' });
+      if (!user) {
+        return res.status(400).json({ message: 'Usuário não encontrado!' });
+      }
+
+      // Comparar a senha inserida com o hash no banco
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ message: 'Senha incorreta!' });
+      }
+
+      // Gerar o token JWT
+      const token = jwt.sign(
+        { id: user._id, email: user.email, name: user.name },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
+      );
+
+      // Retorna o token
+      res.json({ token });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Erro ao fazer login.', error: err.message });
     }
-
-    // Comparar a senha inserida com o hash no banco
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Senha incorreta!' });
-    }
-
-    const token = jwt.sign(
-      { id: user._id, email: user.email, name: user.name },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
-
-    res.json({ token });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Erro ao fazer login.', error: err.message });
-  }
+  });
 };
+
 
 
 
@@ -346,7 +352,7 @@ module.exports = {
   updateProfileImage,
   forgotPassword, 
   resetPassword,
-  
+  loginRateLimiter,
 };
 
 

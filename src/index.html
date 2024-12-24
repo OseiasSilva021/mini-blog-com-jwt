@@ -181,7 +181,7 @@
         });
 
         // Validação do formulário de login e integração com a API
-const loginForm = document.getElementById('loginForm');
+        const loginForm = document.getElementById('loginForm');
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -201,11 +201,11 @@ loginForm.addEventListener('submit', async (e) => {
             alert('Login bem-sucedido!');
             window.location.href = './blog.html'; // Redireciona para a página blog.html após o login
         } else {
-            const error = await response.json();
-
-            if (response.status === 429) {  // Verifica se o erro é devido ao limite de tentativas
+            // Tratar erros específicos, como 429 (limite de tentativas)
+            if (response.status === 429) {  
                 alert('Você excedeu o número de tentativas de login. Tente novamente mais tarde.');
             } else {
+                const error = await response.json();
                 alert(error.message || 'Erro ao fazer login!');
             }
         }
@@ -214,6 +214,7 @@ loginForm.addEventListener('submit', async (e) => {
         alert('Erro de conexão com o servidor!');
     }
 });
+
 
         
         const forgotPasswordForm = document.getElementById('forgotPasswordForm');
