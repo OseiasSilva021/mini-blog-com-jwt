@@ -38,37 +38,7 @@ const createUser = async (req, res) => {
 
 
 // Função de login de usuário
-const loginUser = async (req, res) => {
-  const { email, password } = req.body;
 
-  try {
-    // Verifique se o usuário existe
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(400).json({ message: 'Usuário não encontrado!' });
-    }
-
-    // Verifique a senha
-    const isMatch = await user.matchPassword(password);
-
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Senha incorreta!' });
-    }
-
-    // Gerar o token JWT
-    const token = jwt.sign(
-      { id: user._id, email: user.email, name: user.name },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
-
-    res.json({ token });
-
-  } catch (err) {
-    res.status(500).json({ message: 'Erro ao fazer login', error: err.message });
-  }
-};
 
 
 const getAllUsers = async (req, res) => {
@@ -233,12 +203,9 @@ async function forgotPassword(req, res) {
       // Gerar um token único para recuperação
       const resetToken = crypto.randomBytes(32).toString('hex');
 
-      // Definir a expiração do token (1 hora)
-      const resetTokenExpiration = Date.now() + 3600000; // 1 hora
-
-      // Salvar o token e a data de expiração no banco de dados
+      // Salvar o token no banco de dados sem expiração
       user.resetPasswordToken = resetToken;
-      user.resetPasswordExpires = resetTokenExpiration;
+      user.resetPasswordExpires = undefined; // Remover a expiração
       await user.save();
 
       // Configurar o transporte de e-mail (usando Nodemailer)
@@ -250,7 +217,6 @@ async function forgotPassword(req, res) {
           pass: process.env.MAILTRAP_PASS
         }
       });
-      
 
       // Criar o link de recuperação
       const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
@@ -261,14 +227,13 @@ async function forgotPassword(req, res) {
         from: 'f78199dc4d-054ad7@inbox.mailtrap.io', // Remetente
         subject: 'Recuperação de Senha',
         text: `Você solicitou a recuperação de senha. Clique no link abaixo para redefinir sua senha:\n\n${resetUrl}`, // Versão texto
-        html: `
+        html: `  
           <p>Você solicitou a recuperação de senha.</p>
           <p>Clique no link abaixo para redefinir sua senha:</p>
           <a href="${resetUrl}">${resetUrl}</a>
           <p>Se você não solicitou isso, ignore este e-mail.</p>
         ` // Versão HTML
       };
-      
 
       await transporter.sendMail(mailOptions);
 
@@ -280,34 +245,78 @@ async function forgotPassword(req, res) {
 }
 
 
+
+// Função para redefinir a senha com o token
 // Função para redefinir a senha com o token
 async function resetPassword(req, res) {
-  const { token, newPassword } = req.body;
+  const { token } = req.params;
+  const { password, confirmPassword } = req.body;
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({ message: 'As senhas não coincidem!' });
+  }
 
   try {
-      // Buscar o usuário com o token de recuperação
-      const user = await User.findOne({
-          resetPasswordToken: token,
-          resetPasswordExpires: { $gt: Date.now() }  // Verifica se o token não expirou
-      });
+    const user = await User.findOne({ resetPasswordToken: token });
 
-      if (!user) {
-          return res.status(400).json({ message: 'Token inválido ou expirado!' });
+    if (!user) {
+      return res.status(400).json({ message: 'Token inválido!' });
+    }
+
+    // Criptografar a senha manualmente
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Atualizar diretamente os campos no banco
+    await User.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          password: hashedPassword,
+          resetPasswordToken: undefined,
+          resetPasswordExpires: undefined,
+        },
       }
+    );
 
-      // Atualizar a senha do usuário
-      user.password = newPassword;  // Aqui você deve hash a senha antes de salvar no banco
-      user.resetPasswordToken = undefined;  // Limpar o token
-      user.resetPasswordExpires = undefined; // Limpar a expiração
-
-      await user.save();
-
-      res.status(200).json({ message: 'Senha alterada com sucesso!' });
+    res.status(200).json({ message: 'Senha redefinida com sucesso!' });
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Erro ao tentar redefinir a senha.' });
+    console.error(error);
+    res.status(500).json({ message: 'Erro ao redefinir a senha.' });
   }
 }
+
+
+
+// Função de login de usuário
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Usuário não encontrado!' });
+    }
+
+    // Comparar a senha inserida com o hash no banco
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Senha incorreta!' });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email, name: user.name },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.json({ token });
+  } catch (err) {
+    res.status(500).json({ message: 'Erro ao fazer login.', error: err.message });
+  }
+};
+
 
 
 

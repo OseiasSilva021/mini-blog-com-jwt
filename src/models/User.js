@@ -23,21 +23,22 @@ const UserSchema = new mongoose.Schema({
     type: String, // Token para recuperação
     required: false
   },
-  resetPasswordExpires: {
-    type: Date, // Data de expiração do token de recuperação
-    required: false
-  }
+
 }, { timestamps: true });
 
 // Encrypt password before saving the user
 UserSchema.pre('save', async function(next) {
+  // Verifica se a senha foi modificada antes de aplicar o hash
   if (!this.isModified('password')) {
     return next();
   }
+
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
+
+
 
 // Compare entered password with hashed password
 UserSchema.methods.matchPassword = async function(enteredPassword) {
