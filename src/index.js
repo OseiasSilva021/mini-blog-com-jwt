@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const userRoutes = require('./routes/userRoutes');
-const productRoutes = require('./routes/productRoutes');
+const postRoutes = require('./routes/postRoutes'); // Importa as rotas de posts
 const connectDB = require('./config/db');
 
 const app = express();
@@ -19,7 +19,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Rotas
 app.use(userRoutes);
-app.use(productRoutes);
+app.use(postRoutes); // Adiciona as rotas de posts
 
 // Iniciar servidor
 app.listen(3000, () => {

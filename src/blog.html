@@ -117,19 +117,22 @@
         <input type="text" id="postAuthor" placeholder="Autor" required>
         <textarea id="postContent" placeholder="Conteúdo do Post" rows="4" required></textarea>
         <button onclick="addPost()">Adicionar Post</button>
+        
     </div>
 </div>
 
 <script>
-  const API_BASE_URL = 'http://localhost:3000'; // Substitua com sua URL da API
+  const API_BASE_URL = 'http://localhost:3000'; // Substitua com a URL do backend
+
   const profileImage = document.getElementById('profileImage');
   const userName = document.getElementById('userName');
 
+  // Carregar dados do usuário autenticado
   async function loadUserData() {
     const token = localStorage.getItem('jwtToken');
     if (!token) {
       alert('Você precisa estar logado para acessar esta página.');
-      window.location.href = 'index.html'; // Redireciona para a página de login se não estiver autenticado
+      window.location.href = 'index.html'; // Redireciona para a página de login
       return;
     }
 
@@ -137,25 +140,23 @@
       const response = await fetch(`${API_BASE_URL}/users/profile`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          'Authorization': `Bearer ${token}`,
+        },
       });
 
       if (!response.ok) throw new Error('Erro ao carregar os dados do usuário.');
 
       const data = await response.json();
-      // Preenche o nome e a imagem de perfil
       userName.textContent = data.name;
-      profileImage.src = "../" + data.profileImage || 'default-profile.png'; // Se não tiver imagem, usa uma padrão
-
+      profileImage.src = "../" + data.profileImage || 'default-profile.png';
     } catch (error) {
       console.error(error);
       alert('Erro ao carregar dados do usuário.');
     }
   }
 
-  // Função para adicionar um novo post
-  function addPost() {
+  // Adicionar um novo post
+  async function addPost() {
     const title = document.getElementById('postTitle').value;
     const author = document.getElementById('postAuthor').value;
     const content = document.getElementById('postContent').value;
@@ -165,68 +166,80 @@
       return;
     }
 
-    const postDate = new Date().toLocaleDateString('pt-BR');
+    const post = { title, author, content };
 
-    // Criação do post
-    const post = {
-      title: title,
-      author: author,
-      date: postDate,
-      content: content
-    };
+    try {
+      const response = await fetch(`${API_BASE_URL}/posts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(post),
+      });
 
-    // Recupera os posts salvos no localStorage
-    let posts = JSON.parse(localStorage.getItem('posts')) || [];
+      if (!response.ok) throw new Error('Erro ao criar post.');
 
-    // Adiciona o novo post ao array
-    posts.push(post);
+      alert('Post criado com sucesso!');
+      document.getElementById('postTitle').value = '';
+      document.getElementById('postAuthor').value = '';
+      document.getElementById('postContent').value = '';
 
-    // Salva novamente os posts no localStorage
-    localStorage.setItem('posts', JSON.stringify(posts));
-
-    // Limpa o formulário
-    document.getElementById('postTitle').value = '';
-    document.getElementById('postAuthor').value = '';
-    document.getElementById('postContent').value = '';
-
-    // Atualiza a lista de posts
-    displayPosts();
+      // Atualiza os posts após adicionar
+      displayPosts();
+    } catch (error) {
+      console.error(error);
+      alert('Erro ao criar post.');
+    }
   }
 
-  // Função para exibir os posts
-  function displayPosts() {
+  // Carregar e exibir posts
+  async function displayPosts() {
     const postsContainer = document.getElementById('posts');
 
-    // Recupera os posts do localStorage
-    const posts = JSON.parse(localStorage.getItem('posts')) || [];
+    try {
+      const response = await fetch(`${API_BASE_URL}/posts`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-    // Limpa o conteúdo atual
-    postsContainer.innerHTML = '';
+      if (!response.ok) throw new Error('Erro ao carregar posts.');
 
-    // Cria o HTML para cada post
-    posts.forEach(post => {
-      const postElement = document.createElement('div');
-      postElement.classList.add('post');
-      
-      postElement.innerHTML = `
-        <h2>${post.title}</h2>
-        <div class="meta">
-            <span>Autor: ${post.author}</span>
-            <span>Data: ${post.date}</span>
-        </div>
-        <p>${post.content}</p>
-      `;
+      const { posts } = await response.json();
 
-      postsContainer.appendChild(postElement);
-    });
+      // Limpa os posts atuais
+      postsContainer.innerHTML = '';
+
+      // Renderiza os posts carregados
+      posts.forEach(post => {
+        const postElement = document.createElement('div');
+        postElement.classList.add('post');
+
+        postElement.innerHTML = `
+          <h2>${post.title}</h2>
+          <div class="meta">
+              <span>Autor: ${post.author}</span>
+              <span>Data: ${new Date(post.date).toLocaleDateString('pt-BR')}</span>
+          </div>
+          <p>${post.content}</p>
+        `;
+
+        postsContainer.appendChild(postElement);
+      });
+    } catch (error) {
+      console.error(error);
+      alert('Erro ao carregar posts.');
+    }
   }
 
-  // Carrega os dados do usuário e os posts quando a página é carregada
+  // Carregar dados do usuário e posts ao inicializar
   window.onload = () => {
     loadUserData();
     displayPosts();
   };
 </script>
+
 
 </body>
 </html>
