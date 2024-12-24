@@ -1,3 +1,5 @@
+
+
 # 🚀 **Projeto de Autenticação, Blog e Personalização de Perfil com Node.js** 🧑‍💻
 
 Este projeto é uma aplicação completa com **autenticação de usuários**, **blog simples** e **personalização de perfil**. Utiliza **Node.js**, **Express**, **MongoDB**, **JWT (JSON Web Token)** e **Multer** para upload de fotos de perfil. O sistema também inclui uma funcionalidade para redefinir a senha via e-mail. Os dados dos posts e perfis são armazenados no **MongoDB**, garantindo persistência e segurança. 💻🔒📖🖼️
@@ -6,7 +8,8 @@ Este projeto é uma aplicação completa com **autenticação de usuários**, **
 
 ## 📋 **Funcionalidades**:
 
-- **Login de Usuário**: Acesso com e-mail e senha 🔐💻
+- **Login de Usuário**: Acesso com e-mail e senha 🔐💻  
+  - Limite de 5 tentativas de login falhadas. Após atingir esse limite, o login é bloqueado por 15 minutos.
 - **Registro de Usuário**: Cadastro de novos usuários 📥✍️
 - **Blog**: Usuários podem criar e visualizar posts 📝📖
 - **Armazenamento de Posts e Perfis**: Dados são salvos no **MongoDB**, incluindo posts e fotos de perfil 🔄💾
@@ -35,12 +38,14 @@ Este projeto é uma aplicação completa com **autenticação de usuários**, **
 
 ### 1. **Clonar o Repositório**:
 Clone este repositório para o seu computador:
+
 ```bash
 git clone https://github.com/OseiasSilva021/mini-blog-com-jwt.git
 ```
 
 ### 2. **Instalar Dependências**:
 Navegue até a pasta do projeto e instale as dependências:
+
 ```bash
 cd mini-blog-com-jwt
 npm install
@@ -57,6 +62,7 @@ Configure o **Nodemailer** no arquivo `.env` com as credenciais do seu provedor 
 ## 🛠️ **Executando o Projeto**:
 
 Para rodar o servidor, utilize o comando abaixo:
+
 ```bash
 npm start
 ```
@@ -105,17 +111,23 @@ As mudanças são feitas em tempo real e salvas no **MongoDB** para persistênci
 
 1. **Faça um Fork** deste repositório. 🍴
 2. Crie uma branch para sua nova feature:
-   ```bash
-   git checkout -b minha-nova-feature
-   ```
+
+```bash
+git checkout -b minha-nova-feature
+```
+
 3. Realize as alterações e faça um commit:
-   ```bash
-   git commit -m 'Adiciona nova feature'
-   ```
+
+```bash
+git commit -m 'Adiciona nova feature'
+```
+
 4. Faça o Push da sua branch:
-   ```bash
-   git push origin minha-nova-feature
-   ```
+
+```bash
+git push origin minha-nova-feature
+```
+
 5. Abra um **Pull Request** para a branch principal deste repositório. 🔄👨‍💻
 
 ---
