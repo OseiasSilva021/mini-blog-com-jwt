@@ -4,6 +4,8 @@ const path = require('path');
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes'); // Importa as rotas de posts
 const connectDB = require('./config/db');
+require('dotenv').config();
+
 
 const app = express();
 

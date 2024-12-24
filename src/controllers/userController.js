@@ -243,23 +243,32 @@ async function forgotPassword(req, res) {
 
       // Configurar o transporte de e-mail (usando Nodemailer)
       const transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-              user: 'soseias894@gmail.com', // Substitua com seu e-mail
-              pass: 'oseias21'             // Substitua com sua senha
-          }
+        host: process.env.MAILTRAP_HOST,
+        port: process.env.MAILTRAP_PORT,
+        auth: {
+          user: process.env.MAILTRAP_USER,
+          pass: process.env.MAILTRAP_PASS
+        }
       });
+      
 
       // Criar o link de recuperação
       const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
 
       // Enviar o e-mail
       const mailOptions = {
-          to: email,
-          from: 'soseias894@gmail.com',
-          subject: 'Recuperação de Senha',
-          text: `Você solicitou a recuperação de senha. Clique no link abaixo para redefinir sua senha:\n\n${resetUrl}`
+        to: email,
+        from: 'f78199dc4d-054ad7@inbox.mailtrap.io', // Remetente
+        subject: 'Recuperação de Senha',
+        text: `Você solicitou a recuperação de senha. Clique no link abaixo para redefinir sua senha:\n\n${resetUrl}`, // Versão texto
+        html: `
+          <p>Você solicitou a recuperação de senha.</p>
+          <p>Clique no link abaixo para redefinir sua senha:</p>
+          <a href="${resetUrl}">${resetUrl}</a>
+          <p>Se você não solicitou isso, ignore este e-mail.</p>
+        ` // Versão HTML
       };
+      
 
       await transporter.sendMail(mailOptions);
 
