@@ -1,7 +1,6 @@
-
 # 🚀 **Projeto de Autenticação, Blog e Personalização de Perfil com Node.js** 🧑‍💻
 
-Este projeto é uma aplicação completa com **autenticação de usuários**, **blog simples** e **personalização de perfil**. Utiliza **Node.js**, **Express**, **MongoDB**, **JWT (JSON Web Token)** e **Multer** para upload de fotos de perfil. O sistema armazena os posts e perfis no **MongoDB**, garantindo persistência e segurança dos dados. 💻🔒📖🖼️
+Este projeto é uma aplicação completa com **autenticação de usuários**, **blog simples** e **personalização de perfil**. Utiliza **Node.js**, **Express**, **MongoDB**, **JWT (JSON Web Token)** e **Multer** para upload de fotos de perfil. O sistema também inclui uma funcionalidade para redefinir a senha via e-mail. Os dados dos posts e perfis são armazenados no **MongoDB**, garantindo persistência e segurança. 💻🔒📖🖼️
 
 ---
 
@@ -12,6 +11,7 @@ Este projeto é uma aplicação completa com **autenticação de usuários**, **
 - **Blog**: Usuários podem criar e visualizar posts 📝
 - **Armazenamento de Posts e Perfis**: Dados são salvos no **MongoDB**, incluindo posts e fotos de perfil 🔄
 - **Personalização de Perfil**: Usuários podem alterar nome, e-mail e foto de perfil 🖼️
+- **Redefinição de Senha**: Os usuários podem redefinir suas senhas através de um link enviado por e-mail 📧
 - **API Backend**: Com rotas protegidas e autenticação via **JWT** 🔑
 - **Upload de Arquivos**: Usuários podem enviar imagens para seu perfil utilizando **Multer** 📷
 
@@ -21,12 +21,13 @@ Este projeto é uma aplicação completa com **autenticação de usuários**, **
 
 - **Node.js**: Plataforma de backend 🖥️
 - **Express**: Framework para criação de rotas e servidor ⚡
-- **MongoDB**: Banco de dados NoSQL para armazenar posts e usuários 🗄️
-- **JWT (JSON Web Token)**: Autenticação segura para as rotas 🛡️
+- **MongoDB**: Banco de dados NoSQL para armazenar posts e usuários 📄
+- **JWT (JSON Web Token)**: Autenticação segura para as rotas 🚡
 - **Multer**: Middleware para lidar com o upload de arquivos (fotos de perfil) 📷
+- **Nodemailer**: Envio de e-mails para redefinição de senha 📧
 - **CORS**: Permite a comunicação entre diferentes origens (cross-origin resource sharing) 🔄
 - **Path**: Módulo para lidar com caminhos de diretórios e arquivos no servidor 🛠️
-- **Express JSON**: Middleware para análise de dados no formato JSON 💾
+- **Express JSON**: Middleware para análise de dados no formato JSON 📂
 
 ---
 
@@ -48,6 +49,9 @@ npm install
 ### 3. **Configurar o Banco de Dados**:
 Este projeto utiliza o **MongoDB**. Você precisará de uma instância do MongoDB rodando. Configure a conexão no arquivo `config/db.js`.
 
+### 4. **Configurar o Envio de E-mails**:
+Configure o **Nodemailer** no arquivo `config/email.js` com as credenciais do seu provedor de e-mail (como Gmail, Outlook, etc.).
+
 ---
 
 ## 🛠️ **Executando o Projeto**:
@@ -63,12 +67,13 @@ Isso iniciará o servidor na porta `3000`, e o backend ficará acessível em `ht
 
 ## 🌐 **Frontend**:
 
-O frontend é uma interface simples com **HTML**, **CSS** e **JavaScript**. Ele permite que os usuários façam login, se registrem, interajam com o **blog** e **personalizem seu perfil**.
+O frontend é uma interface simples com **HTML**, **CSS** e **JavaScript**. Ele permite que os usuários façam login, se registrem, interajam com o **blog**, redefinam suas senhas e **personalizem seu perfil**.
 
 ### Principais páginas:
 
-- **Login**: Página para autenticar o usuário 🖱️
+- **Login**: Página para autenticar o usuário 🔍
 - **Registro**: Página para criar uma nova conta ✍️
+- **Redefinição de Senha**: Página onde o usuário solicita o envio de um link para redefinir a senha 📧
 - **Blog**: Página onde os usuários podem criar posts 📖
 - **Perfil**: Página para o usuário personalizar seu perfil, com a opção de alterar nome, e-mail e foto 🖼️
 
