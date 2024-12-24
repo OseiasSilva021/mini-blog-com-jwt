@@ -1,9 +1,19 @@
 const User = require('../models/User');
+const rateLimit = require('express-rate-limit');
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 const bcrypt = require('bcrypt')
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+
+
+const loginRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 5, // Limitar a 5 tentativas
+  message: 'Muitas tentativas de login. Tente novamente em 15 minutos.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // Validação dos dados de entrada
 const userSchema = Joi.object({
@@ -314,9 +324,12 @@ const loginUser = async (req, res) => {
 
     res.json({ token });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Erro ao fazer login.', error: err.message });
   }
 };
+
+
 
 
 
@@ -333,6 +346,7 @@ module.exports = {
   updateProfileImage,
   forgotPassword, 
   resetPassword,
+  
 };
 
 

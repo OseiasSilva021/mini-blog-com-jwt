@@ -4,7 +4,7 @@ const Joi = require('joi');
 const bcrypt = require('bcrypt')
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
-const { createUser, loginUser, getAllUsers, deleteUser, updateUser, getUserProfile, updateProfileImage, forgotPassword, resetPassword } = require('../controllers/userController');
+const { createUser, loginUser, getAllUsers, deleteUser, updateUser, getUserProfile, updateProfileImage, forgotPassword, resetPassword, loginRateLimiter } = require('../controllers/userController');
 const { validateUser } = require('../middleware/validateMiddleware');
 const authenticateToken = require('../middleware/authMiddleware');
 const multer = require('multer');
@@ -20,7 +20,7 @@ const router = express.Router();
 router.post('/users', validateUser, createUser);
 
 // Rota de login de usuário
-router.post('/login', loginUser);
+router.post('/login', loginUser); 
 
 // Rota para obter todos os usuários
 router.get('/users', getAllUsers); 
