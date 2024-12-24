@@ -219,7 +219,8 @@ async function forgotPassword(req, res) {
       });
 
       // Criar o link de recuperação
-      const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
+      const resetUrl = `http://localhost:3000/reset-password.html?token=${resetToken}`;
+
 
       // Enviar o e-mail
       const mailOptions = {

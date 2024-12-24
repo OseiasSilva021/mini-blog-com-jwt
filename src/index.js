@@ -9,11 +9,7 @@ require('dotenv').config();
 
 const app = express();
 
-// Configuração do EJS como engine de templates
-app.set('view engine', 'ejs');
-
-// Configuração do diretório onde as views (arquivos EJS) estarão
-app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, '../src/')));
 
 
 // Conectar ao MongoDB
