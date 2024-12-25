@@ -6,6 +6,11 @@ Este projeto é uma aplicação completa com **autenticação de usuários**, **
 
 ---
 
+# Clique para ver o Vídeo de Demonstração ⬇️
+[![Demo do Projeto](https://img.youtube.com/vi/E2tpsKQCpNM/maxresdefault.jpg)](https://youtu.be/E2tpsKQCpNM)
+
+---
+
 ## 📋 **Funcionalidades**:
 
 - **Login de Usuário**: Acesso com e-mail e senha 🔐💻  
